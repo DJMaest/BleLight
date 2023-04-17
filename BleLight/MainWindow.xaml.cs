@@ -25,6 +25,7 @@ namespace BleLight
         public String comPort = "";
         SerialPort mySerialPort;
         private bool connected = false;
+        private const bool debug = false;
         public MainWindow()
         {
             InitializeComponent();
@@ -58,7 +59,8 @@ namespace BleLight
 
         private void AvailablePorts_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Trace.WriteLine(availablePorts.SelectedItem.ToString());
+            if(debug)
+                Trace.WriteLine(availablePorts.SelectedItem.ToString());
            
         }
 
@@ -81,7 +83,8 @@ namespace BleLight
                     };
 
                     mySerialPort.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
-                    Trace.WriteLine("from object: ");
+                    if(debug)
+                        Trace.WriteLine("from object: ");
 
                     mySerialPort.Open();
 
@@ -99,49 +102,60 @@ namespace BleLight
                 MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
             }
         }
+
+        private void PerformLightSwitch(string connectionStatus, string buttonText, string lightBulbStatus)
+        {
+            this.Dispatcher.Invoke(() =>
+            {
+                connStatus.Text = connectionStatus;
+                btnSwitch.IsEnabled = true;
+                btnSwitch.Content = buttonText;
+                lightBulbImage.Source = new BitmapImage(new Uri(lightBulbStatus, UriKind.Relative));
+            });
+        }
+
+        private void PerformLightSwitch(string buttonText, string lightBulbStatus)
+        {
+            this.Dispatcher.Invoke(() =>
+            {
+                btnSwitch.Content = buttonText;
+                lightBulbImage.Source = new BitmapImage(new Uri(lightBulbStatus, UriKind.Relative));
+            });
+        }
+
         private void DataReceivedHandler(
                     object sender,
                     SerialDataReceivedEventArgs e)
         {
             SerialPort sp = (SerialPort)sender;
             string indata = sp.ReadExisting();
-            Trace.WriteLine("Data Received:");
-            Trace.Write(indata);
+            if (debug)
+            {
+                Trace.WriteLine("Data Received:");
+                Trace.Write(indata);
+            }
+
             if (indata == "1")
             {
                 if (!connected)
                 {
-                    this.Dispatcher.Invoke(() =>
-                    {
-                        connStatus.Text = "Connected";
-                        btnSwitch.IsEnabled = true;
-                        btnSwitch.Content = "Turn off";
-                        lightBulbImage.Source = new BitmapImage(new Uri("images/lightbulb-on.png", UriKind.Relative));
-                    });
+                    PerformLightSwitch("Connected", "Turn off", "images/lightbulb-on.png");
                     connected = true;
                 }
-                this.Dispatcher.Invoke(() =>
-                {
-                    btnSwitch.Content = "Turn off";
-                    lightBulbImage.Source = new BitmapImage(new Uri("images/lightbulb-on.png", UriKind.Relative));
-                });
+                PerformLightSwitch("Turn off", "images/lightbulb-on.png");
             } else if (indata == "0")
             {
                 if (!connected)
                 {
                     this.Dispatcher.Invoke(() =>
                     {
-                        connStatus.Text = "Connected";
-                        btnSwitch.IsEnabled = true;
-                        btnSwitch.Content = "Turn off";
-                        lightBulbImage.Source = new BitmapImage(new Uri("images/lightbulb-on.png", UriKind.Relative));
+                        PerformLightSwitch("Connected", "Turn on", "images/lightbulb-off.png");
                     });
                     connected = true;
                 }
 
                 this.Dispatcher.Invoke(() => {
-                    btnSwitch.Content = "Turn on";
-                    lightBulbImage.Source = new BitmapImage(new Uri("images/lightbulb-off.png", UriKind.Relative));
+                    PerformLightSwitch("Turn on", "images/lightbulb-off.png");
                 });
             }
 
