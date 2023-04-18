@@ -20,11 +20,7 @@
                 </Button.Resources>
             </Button>
             <StackPanel Margin="10,10,0,0" Orientation="Horizontal">
-                <ComboBox Width="150" Name="availablePorts" SelectedIndex="0" SelectionChanged="AvailablePorts_SelectionChanged">
-                    <ComboBoxItem Visibility="Collapsed">
-                        Choose Serial Port
-                    </ComboBoxItem>
-                </ComboBox>
+                    <TextBlock Name="availablePort">Available Port: NaN</TextBlock>
                     <Button Margin="10,0,0,0" Name="connectSerial" Click="ConnectSerial_Click">Serial Connect</Button>
             </StackPanel>
             <StatusBar Margin="10" Height="50">
