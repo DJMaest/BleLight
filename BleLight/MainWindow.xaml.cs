@@ -48,6 +48,11 @@ namespace BleLight
             }
 
             connStatus.Text = "Disconnected";
+            if(comPort == "")
+            {
+                ShowWarningDialog("No BLE Fob. Connect device and restart app.", "No Serial Port");
+                this.Close();
+            }
             availablePort.Text = "Available Port: " + comPort;
         }
         protected override void OnClosed(EventArgs e)
@@ -145,7 +150,7 @@ namespace BleLight
         {
             this.Dispatcher.Invoke(() =>
             {
-                SetConnectionState("Connected");
+                SetConnectionState(connectionStatus);
                 btnSwitch.Content = buttonText;
                 lightBulbImage.Source = new BitmapImage(new Uri(lightBulbStatus, UriKind.Relative));
             });
